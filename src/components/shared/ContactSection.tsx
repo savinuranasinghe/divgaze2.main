@@ -8,6 +8,7 @@ export const ContactSection = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     service: '',
     message: '',
   });
@@ -25,24 +26,38 @@ export const ContactSection = () => {
     setIsSubmitting(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      toast({
-        title: "Message sent successfully!",
-        description: "We'll get back to you as soon as possible.",
+      const response = await fetch('https://divgaze-agent.vercel.app/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          service: formData.service,
+          message: formData.message,
+          language: 'English',
+        }),
       });
 
-      setFormData({
-        name: '',
-        email: '',
-        service: '',
-        message: '',
-      });
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: '✅ Message sent successfully!',
+          description: "We'll get back to you within 24 hours. Check your email for confirmation.",
+        });
+        setFormData({ name: '', email: '', phone: '', service: '', message: '' });
+      } else {
+        throw new Error(data.error || 'Failed to send message');
+      }
     } catch (error) {
+      console.error('Error submitting form:', error);
       toast({
-        title: "Something went wrong",
-        description: "Please try again later.",
-        variant: "destructive",
+        title: '❌ Failed to send message',
+        description: 'Please try again or email us directly at divgaze@gmail.com',
+        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);
@@ -95,6 +110,22 @@ export const ContactSection = () => {
               </div>
 
               <div>
+                <label htmlFor="phone" className="block text-sm font-medium mb-2">
+                  Phone
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-4 bg-secondary border-0 focus:ring-2 focus:ring-foreground transition-all outline-none"
+                  placeholder="+94 77 123 4567"
+                />
+              </div>
+
+              <div>
                 <label htmlFor="service" className="block text-sm font-medium mb-2">
                   I'm interested in...
                 </label>
@@ -107,10 +138,10 @@ export const ContactSection = () => {
                   className="w-full px-4 py-4 bg-secondary border-0 focus:ring-2 focus:ring-foreground transition-all outline-none appearance-none cursor-pointer"
                 >
                   <option value="">Select a service</option>
-                  <option value="creative-lab">Creative Lab</option>
-                  <option value="ai-solutions">AI Solutions</option>
-                  <option value="web-dev">Web Dev & Systems</option>
-                  <option value="not-sure">Not Sure Yet</option>
+                  <option value="Web Development">Web Development</option>
+                  <option value="AI Solutions">AI Solutions</option>
+                  <option value="Creative Design">Creative Design</option>
+                  <option value="Other">Other</option>
                 </select>
               </div>
 
