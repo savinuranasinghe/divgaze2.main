@@ -1,4 +1,3 @@
-// SECURITY FIXED VERSION - VoiceAgentWidget.tsx
 import { useState } from 'react';
 import { Mic, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -26,29 +25,6 @@ export const VoiceAgentWidget = ({
     return positions[position];
   };
 
-  // ===== SECURITY FIX: Validate agent URL =====
-  const isValidUrl = (url: string): boolean => {
-    const allowedDomains = [
-      'divgaze-agent.vercel.app',
-      'divgaze.com',
-      'www.divgaze.com',
-      'localhost:3000',
-      'localhost:5173'
-    ];
-    
-    try {
-      const urlObj = new URL(url);
-      return allowedDomains.some(domain => 
-        urlObj.hostname === domain || urlObj.hostname.endsWith('.' + domain)
-      );
-    } catch {
-      return false;
-    }
-  };
-
-  // Validate URL before using
-  const safeAgentUrl = isValidUrl(agentUrl) ? agentUrl : 'https://divgaze-agent.vercel.app';
-
   return (
     <>
       {/* Floating Button - Monochrome Black */}
@@ -62,7 +38,7 @@ export const VoiceAgentWidget = ({
         </Button>
       )}
 
-      {/* Voice Agent Container - Responsive & Properly Sized */}
+      {/* Voice Agent Container - Smaller with More Top Space */}
       {isOpen && (
         <>
           {/* Backdrop for mobile */}
@@ -75,7 +51,7 @@ export const VoiceAgentWidget = ({
             className="fixed z-50 flex flex-col overflow-hidden bg-white shadow-2xl
               /* Mobile: Full screen */
               inset-0 rounded-none
-              /* Desktop: Bottom-right with proper sizing */
+              /* Desktop: Smaller size with more top margin */
               md:inset-auto md:top-20 md:bottom-4 md:right-4 md:left-auto
               md:w-[420px] md:rounded-2xl
               /* Ensure it fits in viewport */
@@ -98,16 +74,13 @@ export const VoiceAgentWidget = ({
               </Button>
             </div>
 
-            {/* ===== SECURITY FIX: Secure iFrame ===== */}
+            {/* iFrame - Takes all available height */}
             <div className="flex-1 overflow-hidden bg-black min-h-0">
               <iframe
-                src={safeAgentUrl}
+                src={agentUrl}
                 className="w-full h-full border-0 block"
                 title="DivGaze Voice Agent"
                 allow="microphone"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
-                referrerPolicy="no-referrer"
-                loading="lazy"
               />
             </div>
           </div>
